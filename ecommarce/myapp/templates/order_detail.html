@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number|default:order.id }} - LuxShop{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-6 fw-bold mb-1">Order Details</h1>
+                <p class="text-secondary mb-0">Order #{{ order.order_number|default:order.id }}</p>
+            </div>
+            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                <span class="badge 
+                    {% if order.status == 'delivered' %}bg-success
+                    {% elif order.status == 'pending' %}bg-warning text-dark
+                    {% elif order.status == 'shipped' %}bg-info
+                    {% elif order.status == 'cancelled' %}bg-danger
+                    {% else %}bg-secondary{% endif %} 
+                    fs-6 px-3 py-2 rounded-pill">
+                    {{ order.status|title }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <!-- Order Items -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Items Ordered</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% for item in order.orderitem_set.all %}
+                    <div class="p-4 border-bottom {% if forloop.last %}border-bottom-0{% endif %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 mb-3 mb-md-0">
+                                <div class="bg-light rounded-3 overflow-hidden position-relative"
+                                    style="padding-top: 100%;">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}"
+                                        class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
+                                        alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <div
+                                        class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <h6 class="fw-bold mb-1">
+                                    <a href="{% url 'product_detail' item.product.id %}"
+                                        class="text-decoration-none text-dark">{{ item.product.name }}</a>
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    {% if item.product.category %}
+                                        {{ item.product.category.name }}
+                                    {% else %}
+                                        Uncategorized
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <span class="d-block fw-bold">${{ item.price }}</span>
+                                <span class="text-muted small">Qty: {{ item.quantity }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Customer Details (Admin only) -->
+            {% if request.user.userprofile.role == 'admin' %}
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 border-start border-primary border-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-user-shield me-2"></i>Customer Info</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong class="text-dark">Customer:</strong> 
+                                {% if order.user %}
+                                    {% if order.user.get_full_name %}
+                                        {{ order.user.get_full_name }}
+                                    {% else %}
+                                        {{ order.user.username }}
+                                    {% endif %}
+                                {% else %}
+                                    Guest
+                                {% endif %}
+                            </p>
+                            <p class="mb-1"><strong class="text-dark">Email:</strong> 
+                                {% if order.user %}{{ order.user.email }}{% else %}Guest Checkout{% endif %}
+                            </p>
+                            <p class="mb-0"><strong class="text-dark">User ID:</strong> 
+                                {% if order.user %}#{{ order.user.id }}{% else %}-{% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <form action="{% url 'update_order_status' order.id %}" method="POST" class="d-flex gap-2 align-items-end">
+                                {% csrf_token %}
+                                <div class="flex-grow-1">
+                                    <label class="form-label small text-muted">Update Status</label>
+                                    <select name="status" class="form-select form-select-sm">
+                                        {% for status_code, status_label in order.STATUS_CHOICES %}
+                                        <option value="{{ status_code }}" {% if order.status == status_code %}selected{% endif %}>
+                                            {{ status_label }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Order Summary -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Order Summary</h5>
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Subtotal</span>
+                        <span>${{ order.total_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 text-secondary">
+                        <span>Shipping</span>
+                        <span class="text-success">Free</span>
+                    </div>
+                    <hr class="opacity-10 my-3">
+                    <div class="d-flex justify-content-between mb-0">
+                        <span class="fw-bold h5 mb-0">Total Paid</span>
+                        <span class="fw-bold h5 mb-0 text-primary">${{ order.total_amount }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Info -->
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Shipping Information</h5>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted small text-uppercase fw-bold mb-2">Shipping Address</h6>
+                        <p class="mb-0">{{ order.shipping_address|default:"N/A"|linebreaksbr }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="text-muted small text-uppercase fw-bold mb-2">Phone Number</h6>
+                        <p class="mb-0">{{ order.phone|default:"N/A" }}</p>
+                    </div>
+
+                    <div class="mb-0">
+                        <h6 class="text-muted small text-uppercase fw-bold mb-2">Payment Method</h6>
+                        <p class="mb-0">
+                            {% if order.payment_method == 'cod' %}
+                                <i class="fas fa-money-bill-wave me-2 text-success"></i>Cash on Delivery
+                            {% else %}
+                                <i class="fas fa-credit-card me-2 text-primary"></i>Online Payment
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                {% if request.user.userprofile.role == 'admin' %}
+                    <a href="{% url 'admin_orders' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="fas fa-arrow-left me-2"></i>Back to All Orders
+                    </a>
+                {% else %}
+                    <a href="{% url 'order_history' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - LuxShop{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-5 fade-in">
+            <ol class="breadcrumb bg-transparent p-0">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none text-secondary">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'shop' %}" class="text-decoration-none text-secondary">Shop</a></li>
+                <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">{{ product.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-premium rounded-4 overflow-hidden mb-5">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <!-- Product Image -->
+                    <div class="col-lg-6 bg-white border-end border-light">
+                        <div class="position-relative h-100 d-flex align-items-center justify-content-center p-5 group-hover-zoom">
+                            {% if product.image %}
+                            <div class="overflow-hidden rounded-4 w-100">
+                                <img src="{{ product.image.url }}" class="img-fluid w-100 object-fit-contain transition-transform" alt="{{ product.name }}" style="max-height: 600px;">
+                            </div>
+                            {% else %}
+                            <div class="bg-light rounded-4 d-flex align-items-center justify-content-center w-100" style="height: 500px;">
+                                <i class="fas fa-image fa-4x text-muted opacity-25"></i>
+                            </div>
+                            {% endif %}
+
+                            <!-- Badges -->
+                            <div class="position-absolute top-0 start-0 m-4 d-flex flex-column gap-2">
+                                {% if product.stock <= 0 %}
+                                    <span class="badge bg-secondary px-3 py-2 rounded-pill shadow-sm">Out of Stock</span>
+                                {% elif product.stock < 5 %}
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">Low Stock</span>
+                                {% else %}
+                                    <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">In Stock</span>
+                                {% endif %}
+                                {% if product.created_at|date:"Y-m-d" > "now"|date:"Y-m-d" %}
+                                    <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">New Arrival</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Wishlist Button -->
+                            <div class="position-absolute top-0 end-0 m-4">
+                                {% if user.is_authenticated %}
+                                    {% if in_wishlist %}
+                                        <a href="{% url 'remove_from_wishlist' wishlist_item_id %}" class="btn btn-danger btn-lg rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;" title="Remove from Wishlist">
+                                            <i class="fas fa-heart"></i>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'add_to_wishlist' product.id %}" class="btn btn-white btn-lg rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center text-secondary hover-danger" style="width: 50px; height: 50px;" title="Add to Wishlist">
+                                            <i class="far fa-heart"></i>
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="{% url 'login' %}" class="btn btn-white btn-lg rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center text-secondary hover-danger" style="width: 50px; height: 50px;" title="Login to Add to Wishlist">
+                                        <i class="far fa-heart"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="col-lg-6 bg-white">
+                        <div class="p-5 h-100 d-flex flex-column justify-content-center">
+                            <div class="mb-4">
+                                {% if product.category %}
+                                <a href="{% url 'shop' %}?category={{ product.category.id }}" class="text-uppercase text-primary fw-bold small text-decoration-none tracking-wider">
+                                    {{ product.category.name }}
+                                </a>
+                                {% endif %}
+                                <h1 class="display-4 fw-bold mt-2 mb-3">{{ product.name }}</h1>
+                                <div class="d-flex align-items-center mb-0">
+                                    <div class="text-warning small me-3">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <span class="text-muted small border-start ps-3">4.8 (120 reviews)</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h2 class="display-5 fw-bold text-dark mb-0">${{ product.price }}</h2>
+                                <p class="text-muted small">Inclusive of all taxes</p>
+                            </div>
+
+                            <p class="lead text-secondary mb-5" style="line-height: 1.8;">
+                                {{ product.description|truncatewords:40 }}
+                                <a href="#details" class="text-primary text-decoration-none small fw-bold ms-1">Read More</a>
+                            </p>
+
+                            <!-- Actions -->
+                            <div class="mb-5">
+                                {% if product.stock > 0 %}
+                                    {% if user.is_authenticated and user.userprofile.role != 'admin' %}
+                                    <form action="{% url 'add_to_cart' product.id %}" method="POST" class="d-flex gap-3 align-items-stretch">
+                                        {% csrf_token %}
+                                        <div class="quantity-selector d-flex align-items-center border border-2 rounded-pill px-2" style="width: 140px;">
+                                            <button class="btn btn-link text-dark text-decoration-none p-2" type="button" onclick="decrementValue()"><i class="fas fa-minus small"></i></button>
+                                            <input type="number" class="form-control border-0 text-center fw-bold bg-transparent p-0 text-dark" id="number" value="1" min="1" max="{{ product.stock }}" name="quantity">
+                                            <button class="btn btn-link text-dark text-decoration-none p-2" type="button" onclick="incrementValue()"><i class="fas fa-plus small"></i></button>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 flex-grow-1 shadow-md hover-scale shadow-primary"><i class="fas fa-shopping-bag me-2"></i> Add to Cart</button>
+                                    </form>
+                                    {% else %}
+                                        <div class="alert alert-info rounded-pill text-center mb-0"><i class="fas fa-info-circle me-2"></i> Admins cannot make purchases.</div>
+                                    {% endif %}
+                                {% else %}
+                                    <button class="btn btn-secondary btn-lg w-100 rounded-pill" disabled><i class="fas fa-times-circle me-2"></i> Out of Stock</button>
+                                {% endif %}
+                            </div>
+
+                            <!-- Trust Badges -->
+                            <div class="row g-3 pt-4 border-top">
+                                <div class="col-4">
+                                    <div class="d-flex align-items-center text-muted"><i class="fas fa-truck text-dark me-2"></i><small class="lh-sm">Fast<br>Delivery</small></div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="d-flex align-items-center text-muted"><i class="fas fa-shield-alt text-dark me-2"></i><small class="lh-sm">Secure<br>Payment</small></div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="d-flex align-items-center text-muted"><i class="fas fa-undo text-dark me-2"></i><small class="lh-sm">Easy<br>Returns</small></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Tab Section -->
+        <div id="details" class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+                    <div class="card-header bg-white p-0 border-bottom">
+                        <ul class="nav nav-tabs nav-fill border-0" id="productTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active py-4 fw-bold text-dark border-0 border-bottom border-3 border-primary" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab">Description</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link py-4 fw-bold text-secondary border-0" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab">Specifications</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link py-4 fw-bold text-secondary border-0" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab">Reviews (0)</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body p-5">
+                        <div class="tab-content" id="productTabsContent">
+                            <div class="tab-pane fade show active" id="desc" role="tabpanel">
+                                <h4 class="fw-bold mb-4">Product Details</h4>
+                                <div class="text-secondary" style="white-space: pre-line; line-height: 1.8;">
+                                    {{ product.description }}
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="specs" role="tabpanel">
+                                <h4 class="fw-bold mb-4">Additional Information</h4>
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th class="bg-light w-25">Category</th>
+                                            <td>{% if product.category %}{{ product.category.name }}{% else %}N/A{% endif %}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Availability</th>
+                                            <td>{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">SKU</th>
+                                            <td>PRD-{{ product.id|stringformat:"05d" }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                                <div class="text-center py-5">
+                                    <i class="far fa-comment-dots fa-3x text-light mb-3"></i>
+                                    <h5>No Reviews Yet</h5>
+                                    <p class="text-secondary">Be the first to review this product.</p>
+                                    <button class="btn btn-outline-primary rounded-pill mt-2">Write a Review</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        {% if related_products %}
+        <div class="mt-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold m-0 font-playfair">You May Also Like</h3>
+                <a href="{% url 'shop' %}" class="btn btn-outline-primary rounded-pill btn-sm px-4">View All</a>
+            </div>
+
+            <div class="row g-4">
+                {% for related in related_products %}
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="product-card h-100 bg-white rounded-4 shadow-sm border-0 position-relative overflow-hidden group-hover-lift">
+                        <div class="product-image position-relative overflow-hidden" style="padding-top: 100%;">
+                            <a href="{% url 'product_detail' related.id %}">
+                                {% if related.image %}
+                                <img src="{{ related.image.url }}" alt="{{ related.name }}" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover transition-transform">
+                                {% else %}
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-light d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-image fa-2x text-muted opacity-25"></i>
+                                </div>
+                                {% endif %}
+                            </a>
+
+                            <!-- Quick Action Buttons -->
+                            <div class="position-absolute bottom-0 start-0 w-100 p-3 d-flex gap-2 justify-content-center transform-translate-y-100 transition-all opacity-0 product-actions">
+                                {% if user.is_authenticated %}
+                                    <a href="{% url 'add_to_wishlist' related.id %}" class="btn btn-white btn-sm rounded-circle shadow-sm hover-primary" title="Wishlist"><i class="far fa-heart"></i></a>
+                                    {% if related.stock > 0 and user.userprofile.role != 'admin' %}
+                                    <a href="{% url 'add_to_cart' related.id %}" class="btn btn-white btn-sm rounded-circle shadow-sm hover-primary" title="Add to Cart"><i class="fas fa-shopping-bag"></i></a>
+                                    {% endif %}
+                                {% endif %}
+                                <a href="{% url 'product_detail' related.id %}" class="btn btn-white btn-sm rounded-circle shadow-sm hover-primary" title="View"><i class="far fa-eye"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="p-3">
+                            <div class="text-uppercase text-muted extra-small fw-bold mb-1">{% if related.category %}{{ related.category.name }}{% endif %}</div>
+                            <h6 class="fw-bold text-dark text-truncate mb-2"><a href="{% url 'product_detail' related.id %}" class="text-decoration-none text-dark">{{ related.name }}</a></h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-primary">${{ related.price }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+<style>
+.hover-danger:hover { background-color: #dc3545 !important; color: white !important; }
+.shadow-primary { box-shadow: 0 10px 20px -5px rgba(var(--primary-rgb), 0.4); }
+.quantity-selector input::-webkit-outer-spin-button, .quantity-selector input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.nav-tabs .nav-link.active { background-color: transparent; color: #000; }
+.product-card .product-actions { transform: translateY(100%); }
+.product-card:hover .product-actions { transform: translateY(0); opacity: 1; }
+</style>
+
+<script>
+function incrementValue() {
+    var value = parseInt(document.getElementById('number').value, 10);
+    value = isNaN(value) ? 1 : value;
+    var max = parseInt(document.getElementById('number').getAttribute('max'), 10);
+    if (value < max) { value++; document.getElementById('number').value = value; }
+}
+function decrementValue() {
+    var value = parseInt(document.getElementById('number').value, 10);
+    value = isNaN(value) ? 1 : value;
+    if (value > 1) { value--; document.getElementById('number').value = value; }
+}
+</script>
+{% endblock %}

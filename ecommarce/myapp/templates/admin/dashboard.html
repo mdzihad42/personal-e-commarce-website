@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - LuxShop{% endblock %}
+
+{% block content %}
+<div class="bg-light pb-5">
+
+    <!-- Header -->
+    <div class="bg-white border-bottom py-4 mb-5 shadow-sm">
+        <div class="container-fluid px-lg-5 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 fw-bold text-primary mb-1">Dashboard</h1>
+                <p class="text-secondary mb-0">Overview of your store's performance</p>
+            </div>
+            <div class="d-flex gap-3">
+                <a href="{% url 'shop' %}" class="btn btn-outline-primary rounded-pill px-4">
+                    <i class="fas fa-eye me-2"></i>View Shop
+                </a>
+                <a href="{% url 'add_product' %}" class="btn btn-primary rounded-pill px-4">
+                    <i class="fas fa-plus me-2"></i>Add Product
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-lg-5">
+
+        <!-- Stats -->
+        <div class="row g-4 mb-5">
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-white p-4 rounded-4 shadow-sm">
+                    <h6 class="text-secondary small fw-bold">Total Revenue</h6>
+                    <h2 class="fw-bold">
+                        ৳{{ total_revenue|default:0|floatformat:2 }}
+                    </h2>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-white p-4 rounded-4 shadow-sm">
+                    <h6 class="text-secondary small fw-bold">Total Orders</h6>
+                    <h2 class="fw-bold">{{ total_orders|default:0 }}</h2>
+                    <span class="badge bg-warning mt-2">
+                        {{ pending_orders|default:0 }} Pending
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-white p-4 rounded-4 shadow-sm">
+                    <h6 class="text-secondary small fw-bold">Products</h6>
+                    <h2 class="fw-bold">{{ total_products|default:0 }}</h2>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-white p-4 rounded-4 shadow-sm">
+                    <h6 class="text-secondary small fw-bold">Customers</h6>
+                    <h2 class="fw-bold">{{ total_users|default:0 }}</h2>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Recent Orders -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white d-flex justify-content-between">
+                        <h5 class="fw-bold mb-0">Recent Orders</h5>
+                        <a href="{% url 'admin_orders' %}" class="btn btn-sm btn-outline-primary">
+                            View All
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                {% if recent_orders %}
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+
+                                    <!-- FIXED CUSTOMER NAME -->
+                                    <td>
+                                        {% if order.user %}
+                                        {% firstof order.user.first_name order.user.username %}
+                                        {% else %}
+                                        Guest
+                                        {% endif %}
+                                    </td>
+
+                                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+
+                                    <td>
+                                        {% if order.status == 'delivered' %}
+                                        <span class="badge bg-success">Delivered</span>
+                                        {% elif order.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                        {% elif order.status == 'shipped' %}
+                                        <span class="badge bg-info">Shipped</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">
+                                            {{ order.status|default:"Unknown"|title }}
+                                        </span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-end fw-bold">
+                                        ৳{{ order.total_amount|default:0 }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">
+                                        No recent orders found
+                                    </td>
+                                </tr>
+                                {% endif %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="fw-bold mb-0">Management</h5>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'admin_products' %}" class="list-group-item">Products</a>
+                        <a href="{% url 'admin_categories' %}" class="list-group-item">Categories</a>
+                        <a href="{% url 'admin_orders' %}"
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            Orders <i class="fas fa-chevron-right small text-muted"></i>
+                        </a>
+                        <a href="{% url 'admin_users' %}"
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            Customers <i class="fas fa-chevron-right small text-muted"></i>
+                        </a>
+                        <a href="{% url 'admin_messages' %}"
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            Messages <i class="fas fa-chevron-right small text-muted"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Insights -->
+                <div class="card border-0 shadow-sm rounded-4 bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="fw-bold">Quick Insights</h5>
+                        <p class="mb-1 small">
+                            Categories Used:
+                            {{ active_categories_count|default:0 }}/{{ total_categories|default:0 }}
+                        </p>
+                        <p class="small mb-0">Stock Health: Good</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        transition: 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, .08);
+    }
+</style>
+{% endblock %}

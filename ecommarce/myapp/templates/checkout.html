@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - LuxShop{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-3 fade-in">Checkout</h1>
+        <p class="lead text-secondary mb-0 fade-in" style="animation-delay: 0.1s;">Finalize your order</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-5">
+        <!-- Order Summary (Left on desktop for visual balance, or Right - standard checks usually have form on left, summary on right) -->
+        <!-- Let's follow standard: Form Left, Summary Right -->
+
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                    <h4 class="fw-bold mb-0">Shipping Details</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" id="checkout-form">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase small fw-bold text-muted">Shipping Address</label>
+                            {{ form.shipping_address }}
+                            {% if form.shipping_address.errors %}
+                            <div class="text-danger small mt-1">{{ form.shipping_address.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase small fw-bold text-muted">Phone Number</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-uppercase small fw-bold text-muted">Payment Method</label>
+                            <div class="d-flex gap-3">
+                                {% for radio in form.payment_method %}
+                                <div class="form-check custom-radio-card flex-grow-1">
+                                    {{ radio.tag }}
+                                    <label
+                                        class="form-check-label w-100 p-3 border rounded-3 d-flex align-items-center justify-content-center cursor-pointer"
+                                        for="{{ radio.id_for_label }}">
+                                        <i class="fas fa-money-bill-wave me-2 text-success"></i> Cash on Delivery
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.payment_method.errors %}
+                            <div class="text-danger small mt-1">{{ form.payment_method.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit"
+                            class="btn btn-primary w-100 rounded-pill py-3 shadow-md hover-scale mt-2">
+                            Place Order (${{ total }})
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-premium rounded-3 bg-white">
+                <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                    <h4 class="fw-bold mb-0 font-playfair">Order Summary</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="checkout-items mb-4" style="max-height: 400px; overflow-y: auto;">
+                        {% for item in cart_items %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="position-relative me-3">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
+                                    class="rounded-3 object-fit-cover" width="60" height="60">
+                                {% else %}
+                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center text-muted"
+                                    style="width: 60px; height: 60px;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                {% endif %}
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary border border-white">
+                                    {{ item.quantity }}
+                                </span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 text-truncate" style="max-width: 150px;">{{ item.product.name }}</h6>
+                                <small class="text-muted">{{ item.product.category.name }}</small>
+                            </div>
+                            <div class="fw-bold">${{ item.get_total }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr class="opacity-10">
+
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Subtotal</span>
+                        <span>${{ total }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4 text-secondary">
+                        <span>Shipping</span>
+                        <span class="text-success">Free</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold h5 mb-0">Total</span>
+                        <span class="fw-bold h5 mb-0 text-primary">${{ total }}</span>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-3 mb-3">
+                        <div class="d-flex align-items-center text-muted small">
+                            <i class="fas fa-lock me-2"></i>
+                            <span>Secure checkout powered by LuxShop. Implementation of SSL encryption for data
+                                protection.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Styling for the radio buttons to look like cards */
+    .custom-radio-card input[type="radio"] {
+        display: none;
+    }
+
+    .custom-radio-card label {
+        transition: all 0.2s;
+        border: 2px solid #e2e8f0;
+    }
+
+    .custom-radio-card input[type="radio"]:checked+label {
+        border-color: var(--primary-color);
+        background-color: #f8fafc;
+        color: var(--primary-color);
+        font-weight: 600;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

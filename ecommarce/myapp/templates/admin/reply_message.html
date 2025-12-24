@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Reply Message - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white p-4 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="fw-bold mb-0">Message Thread</h4>
+                        <a href="{% url 'admin_messages' %}" class="btn btn-light rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Back
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-4 bg-light">
+                    <!-- Original Message Info -->
+                    <div class="bg-white p-4 rounded-3 mb-4 shadow-sm border">
+                        <div class="row mb-2">
+                            <div class="col-sm-3 text-secondary fw-bold">From:</div>
+                            <div class="col-sm-9">{{ message.name }} &lt;{{ message.email }}&gt;</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-3 text-secondary fw-bold">Date:</div>
+                            <div class="col-sm-9">{{ message.created_at|date:"M d, Y h:i A" }}</div>
+                        </div>
+                        <div class="row mb-0">
+                            <div class="col-sm-3 text-secondary fw-bold">Subject:</div>
+                            <div class="col-sm-9 text-dark fw-bold">{{ message.subject }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Original Customer Message -->
+                    <div class="d-flex flex-column mb-4 align-items-start">
+                        <div class="d-flex align-items-center mb-1 ms-1">
+                            <span class="badge bg-secondary rounded-pill me-2" style="font-size: 0.6rem;">CUSTOMER</span>
+                            <small class="text-muted fw-bold">{{ message.name }}</small>
+                        </div>
+                        <div class="bg-white p-3 rounded-3 shadow-sm border" style="max-width: 80%; border-top-left-radius: 2px !important;">
+                            <p class="mb-0 text-dark" style="white-space: pre-line;">{{ message.message }}</p>
+                        </div>
+                        <small class="text-muted mt-1 ms-1">{{ message.created_at|date:"M d, Y h:i A" }}</small>
+                    </div>
+
+                    <!-- Replies Loop -->
+                    <div id="replies-container">
+                        {% for reply in message.replies.all %}
+                        {% if reply.is_admin %}
+                        <!-- Admin Reply (Right) -->
+                        <div class="d-flex flex-column mb-4 align-items-end">
+                            <div class="bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 80%; border-bottom-right-radius: 2px !important;">
+                                <p class="mb-0" style="white-space: pre-line;">{{ reply.content }}</p>
+                            </div>
+                            <small class="text-muted mt-1 me-1">{{ reply.created_at|date:"M d, Y h:i A" }}</small>
+                        </div>
+                        {% else %}
+                        <!-- Customer Reply (Left) -->
+                        <div class="d-flex flex-column mb-4 align-items-start">
+                            <div class="d-flex align-items-center mb-1 ms-1">
+                                <span class="badge bg-secondary rounded-pill me-2" style="font-size: 0.6rem;">CUSTOMER</span>
+                                <small class="text-muted fw-bold">
+                                    {% if reply.user %}
+                                        {% if reply.user.first_name %}{{ reply.user.first_name }}{% else %}{{ reply.user.username }}{% endif %}
+                                    {% else %}
+                                        Guest
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="bg-white p-3 rounded-3 shadow-sm border" style="max-width: 80%; border-top-left-radius: 2px !important;">
+                                <p class="mb-0 text-dark" style="white-space: pre-line;">{{ reply.content }}</p>
+                            </div>
+                            <small class="text-muted mt-1 ms-1">{{ reply.created_at|date:"M d, Y h:i A" }}</small>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Reply Input -->
+                <div class="card-footer bg-white p-4 border-top-0">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <textarea name="reply_content" class="form-control rounded-3 bg-light border-0" rows="2"
+                                placeholder="Type your reply here..." required style="resize: none;"></textarea>
+                            <button type="submit" class="btn btn-primary rounded-3 px-4 ms-2">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const messageId = {{ message.id }};
+    const repliesContainer = document.getElementById('replies-container');
+
+    function fetchMessages() {
+        fetch(`/api/chat-messages/${messageId}/?t=${new Date().getTime()}`)
+            .then(response => response.json())
+            .then(data => {
+                const replies = data.replies;
+                if (!repliesContainer) return;
+
+                repliesContainer.innerHTML = '';
+
+                replies.forEach(reply => {
+                    let userName = reply.user_name || 'Guest';
+                    let html = '';
+
+                    if (reply.is_admin) {
+                        html = `
+                        <div class="d-flex flex-column mb-4 align-items-end">
+                            <div class="bg-primary text-white p-3 rounded-3 shadow-sm" style="max-width: 80%; border-bottom-right-radius: 2px !important;">
+                                <p class="mb-0" style="white-space: pre-line;">${reply.content}</p>
+                            </div>
+                            <small class="text-muted mt-1 me-1">${reply.created_at}</small>
+                        </div>`;
+                    } else {
+                        html = `
+                        <div class="d-flex flex-column mb-4 align-items-start">
+                            <div class="d-flex align-items-center mb-1 ms-1">
+                                <span class="badge bg-secondary rounded-pill me-2" style="font-size: 0.6rem;">CUSTOMER</span>
+                                <small class="text-muted fw-bold">${userName}</small>
+                            </div>
+                            <div class="bg-white p-3 rounded-3 shadow-sm border" style="max-width: 80%; border-top-left-radius: 2px !important;">
+                                <p class="mb-0 text-dark" style="white-space: pre-line;">${reply.content}</p>
+                            </div>
+                            <small class="text-muted mt-1 ms-1">${reply.created_at}</small>
+                        </div>`;
+                    }
+
+                    repliesContainer.innerHTML += html;
+                });
+            });
+    }
+
+    // Poll every 3 seconds
+    setInterval(fetchMessages, 3000);
+</script>
+{% endblock %}

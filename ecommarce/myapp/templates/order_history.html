@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - LuxShop{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-3 fade-in">Order History</h1>
+        <p class="lead text-secondary mb-0 fade-in" style="animation-delay: 0.1s;">Track and view your past purchases
+        </p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    {% if page_obj %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 table-hover">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 border-0 text-secondary small fw-bold text-uppercase">Order ID</th>
+                        <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Date</th>
+                        <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Payment Method</th>
+                        <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Status</th>
+                        <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Total</th>
+                        <th class="py-3 border-0 text-secondary small fw-bold text-uppercase text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in page_obj %}
+                    <tr>
+                        <td class="ps-4 fw-bold">#{{ order.order_number|default:order.id }}</td>
+                        <td class="text-secondary">{{ order.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            {% if order.payment_method == 'cod' %}
+                            <span class="badge bg-light text-dark border"><i class="fas fa-money-bill-wave me-1"></i>
+                                Cash on Delivery</span>
+                            {% else %}
+                            <span class="badge bg-light text-dark border"><i class="fas fa-credit-card me-1"></i> Online
+                                Payment</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.status == 'delivered' %}
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 border border-success border-opacity-10">Delivered</span>
+                            {% elif order.status == 'pending' %}
+                            <span
+                                class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2 border border-warning border-opacity-10">Pending</span>
+                            {% elif order.status == 'shipped' %}
+                            <span
+                                class="badge bg-info bg-opacity-10 text-info rounded-pill px-3 py-2 border border-info border-opacity-10">Shipped</span>
+                            {% elif order.status == 'cancelled' %}
+                            <span
+                                class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 border border-danger border-opacity-10">Cancelled</span>
+                            {% else %}
+                            <span
+                                class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2 border border-secondary border-opacity-10">{{
+                                order.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold">${{ order.total_amount }}</td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'order_detail' order.id %}"
+                                class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer bg-white border-0 py-4">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link rounded-circle border-0 bg-light text-dark mx-1"
+                            href="?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link rounded-circle border-0 bg-primary mx-1">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item">
+                        <a class="page-link rounded-circle border-0 bg-light text-dark mx-1" href="?page={{ num }}">{{
+                            num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link rounded-circle border-0 bg-light text-dark mx-1"
+                                href="?page={{ page_obj.next_page_number }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-4 text-light">
+            <i class="fas fa-box-open fa-5x opacity-25"></i>
+        </div>
+        <h3 class="fw-bold mb-3">No orders found</h3>
+        <p class="text-secondary mb-4">You haven't placed any orders yet.</p>
+        <a href="{% url 'shop' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-md hover-scale">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

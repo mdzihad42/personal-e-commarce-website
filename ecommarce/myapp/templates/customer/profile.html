@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - LuxShop{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-3 fade-in">My Profile</h1>
+        <p class="lead text-secondary mb-0 fade-in" style="animation-delay: 0.1s;">Manage your account settings</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row g-5">
+        <!-- Profile Sidebar -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-premium rounded-4 overflow-hidden mb-4 text-center">
+                <div class="card-body p-5">
+                    <div class="mb-4 position-relative d-inline-block">
+                        <div class="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto shadow-sm"
+                            style="width: 100px; height: 100px; font-size: 2.5rem; border-radius: 50%;">
+                            {{ user.first_name|first|default:user.username|first|upper }}
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-2"
+                            style="width: 20px; height: 20px;"></div>
+                    </div>
+                    <h4 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-secondary small mb-3">Member since {{ user.date_joined|date:"F Y" }}</p>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'customer_dashboard' %}" class="btn btn-outline-primary rounded-pill">
+                            <i class="fas fa-th-large me-2"></i>Dashboard
+                        </a>
+                        <a href="{% url 'order_history' %}" class="btn btn-outline-secondary rounded-pill">
+                            <i class="fas fa-box-open me-2"></i>My Orders
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Support Widget -->
+            <div class="card border-0 shadow-sm rounded-4 bg-primary text-white overflow-hidden">
+                <div class="card-body p-4 text-center position-relative">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10"
+                        style="background: radial-gradient(circle at top right, #fff, transparent);"></div>
+                    <i class="fas fa-headset fa-3x mb-3 opacity-75"></i>
+                    <h5 class="fw-bold">Need Help?</h5>
+                    <p class="small text-white-50 mb-3">Questions about your order? We're here to assist you.</p>
+                    <a href="{% url 'contact' %}"
+                        class="btn btn-white text-primary rounded-pill px-4 shadow-sm fw-bold">Contact Support</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white py-3 border-bottom-0">
+                    <h5 class="fw-bold mb-0">Personal Information</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-4">
+                            <!-- Name Fields -->
+                            <div class="col-md-6">
+                                <label for="first_name"
+                                    class="form-label text-uppercase small fw-bold text-secondary">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name"
+                                    value="{{ user.first_name }}" placeholder="Your first name">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name"
+                                    class="form-label text-uppercase small fw-bold text-secondary">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name"
+                                    value="{{ user.last_name }}" placeholder="Your last name">
+                            </div>
+
+                            <!-- Contact Fields -->
+                            <div class="col-md-6">
+                                <label for="email" class="form-label text-uppercase small fw-bold text-secondary">Email
+                                    Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-secondary border-end-0"><i
+                                            class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control border-start-0 ps-0" id="email" name="email"
+                                        value="{{ user.email }}" required placeholder="name@example.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.phone.id_for_label }}"
+                                    class="form-label text-uppercase small fw-bold text-secondary">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-secondary border-end-0"><i
+                                            class="fas fa-phone"></i></span>
+                                    {{ form.phone }}
+                                </div>
+                                {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Address Field -->
+                            <div class="col-12">
+                                <label for="{{ form.address.id_for_label }}"
+                                    class="form-label text-uppercase small fw-bold text-secondary">Shipping
+                                    Address</label>
+                                {{ form.address }}
+                                <div class="form-text text-muted small">This address will be used as your default
+                                    shipping address for checkout.</div>
+                                {% if form.address.errors %}
+                                <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="col-12 mt-4 d-flex justify-content-end gap-2">
+                                <a href="{% url 'customer_dashboard' %}"
+                                    class="btn btn-light rounded-pill px-4">Cancel</a>
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-md hover-scale">
+                                    <i class="fas fa-save me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom Styles for Form Controls in this Page */
+    input.form-control,
+    textarea.form-control,
+    select.form-control {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        border-color: #e2e8f0;
+    }
+
+    input.form-control:focus,
+    textarea.form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+    }
+
+    .input-group-text {
+        border-radius: 0.5rem 0 0 0.5rem;
+        border-color: #e2e8f0;
+    }
+
+    .input-group .form-control {
+        border-radius: 0 0.5rem 0.5rem 0;
+    }
+</style>
+{% endblock %}

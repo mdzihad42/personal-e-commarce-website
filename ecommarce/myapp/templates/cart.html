@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - LuxShop{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-3 fade-in">Shopping Bag</h1>
+        <p class="lead text-secondary mb-0 fade-in" style="animation-delay: 0.1s;">Review your selected items</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    {% if cart_items %}
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                <div class="card-body p-0">
+                    {% for item in cart_items %}
+                    <div class="p-4 border-bottom {% if forloop.last %}border-bottom-0{% endif %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 mb-3 mb-md-0">
+                                <div class="position-relative bg-light rounded-3 overflow-hidden"
+                                    style="padding-top: 100%;">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}"
+                                        class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
+                                        alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <div
+                                        class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-muted">
+                                        <i class="fas fa-image fa-2x opacity-25"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <h5 class="fw-bold mb-1">
+                                    <a href="{% url 'product_detail' item.product.id %}"
+                                        class="text-decoration-none text-dark">{{ item.product.name }}</a>
+                                </h5>
+                                <div class="text-uppercase small text-muted mb-2">{{ item.product.category.name }}</div>
+                                <div class="d-flex align-items-center mt-2">
+                                    <span class="text-primary fw-bold me-3">${{ item.product.price }}</span>
+                                    <form action="{% url 'update_cart_quantity' item.id %}" method="POST"
+                                        class="d-flex align-items-center">
+                                        {% csrf_token %}
+                                        <div class="input-group input-group-sm" style="width: 120px;">
+                                            {% if item.quantity > 1 %}
+                                            <button class="btn btn-outline-secondary" type="submit" name="quantity"
+                                                value="{{ item.quantity|add:'-1' }}">-</button>
+                                            {% else %}
+                                            <button class="btn btn-outline-secondary" disabled>-</button>
+                                            {% endif %}
+                                            <input type="text" class="form-control text-center bg-white"
+                                                value="{{ item.quantity }}" readonly>
+                                            <button class="btn btn-outline-secondary" type="submit" name="quantity"
+                                                value="{{ item.quantity|add:'1' }}">+</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-md-end">
+                                <div class="fw-bold mb-3">${{ item.get_total }}</div>
+                                <a href="{% url 'remove_from_cart' item.id %}"
+                                    class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                    <i class="fas fa-trash-alt me-1"></i> Remove
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-premium rounded-3 bg-white">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-4 font-playfair">Order Summary</h4>
+
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Subtotal ({{ cart_items|length }} items)</span>
+                        <span>${{ total }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4 text-secondary">
+                        <span>Shipping</span>
+                        <span class="text-success">Free</span>
+                    </div>
+                    <hr class="opacity-10 my-4">
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold h5 mb-0">Total</span>
+                        <span class="fw-bold h5 mb-0 text-primary">${{ total }}</span>
+                    </div>
+
+                    <a href="{% url 'checkout' %}"
+                        class="btn btn-primary w-100 rounded-pill py-3 mb-3 shadow-md hover-scale">
+                        Proceed to Checkout
+                    </a>
+                    <a href="{% url 'shop' %}" class="btn btn-outline-secondary w-100 rounded-pill py-2 border-0">
+                        <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center text-muted small">
+                <i class="fas fa-lock me-1"></i> Secure Checkout
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-4 text-light">
+            <i class="fas fa-shopping-bag fa-5x opacity-25"></i>
+        </div>
+        <h2 class="fw-bold mb-3">Your cart is empty</h2>
+        <p class="text-secondary mb-4">Looks like you haven't added any products to your cart yet.</p>
+        <a href="{% url 'shop' %}" class="btn btn-primary btn-lg rounded-pill px-5">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Account - LuxShop{% endblock %}
+
+{% block content %}
+<section class="section-padding bg-light d-flex align-items-center" style="min-height: 80vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8">
+                <div class="card border-0 shadow-premium rounded-4 overflow-hidden">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="text-center mb-5">
+                            <h2 class="fw-bold font-playfair mb-2">Join LuxShop</h2>
+                            <p class="text-secondary">Create your account to unlock exclusive features</p>
+                        </div>
+
+                        <form method="post" class="needs-validation" novalidate>
+                            {% csrf_token %}
+
+                            {% for field in form %}
+                            <div class="mb-4">
+                                <label for="{{ field.id_for_label }}"
+                                    class="form-label text-uppercase small fw-bold text-muted ps-2">
+                                    {{ field.label }}
+                                </label>
+                                {% if field.name == 'password' %}
+                                <div class="input-group">
+                                    {{ field }}
+                                    <button class="btn btn-light bg-light border-0" type="button" id="togglePassword">
+                                        <i class="far fa-eye text-muted"></i>
+                                    </button>
+                                </div>
+                                {% else %}
+                                {{ field }}
+                                {% endif %}
+
+                                {% if field.help_text %}
+                                <div class="form-text small text-muted mt-1 ps-2">{{ field.help_text }}</div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                <div class="text-danger small mt-1 ps-2">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+
+                            <div class="d-grid mt-5">
+                                <button type="submit"
+                                    class="btn btn-primary btn-lg rounded-pill shadow-md hover-scale py-3 f-18">
+                                    Create Account
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted mb-0">Already have an account?</p>
+                            <a href="{% url 'login' %}" class="fw-bold text-primary text-decoration-none">Sign In
+                                Here</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted mb-0">&copy; 2024 LuxShop. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Override Django Form Widget Styles */
+    .form-control {
+        background-color: #f8fafc;
+        border: 1px solid transparent;
+        padding: 12px 20px;
+        border-radius: 50rem !important;
+        /* Pill shape inputs */
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        background-color: #ffffff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1);
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #f8fafc inset !important;
+    }
+</style>
+
+<script>
+    // Simple password toggle (if password field exists and has the button)
+    const toggleBtn = document.querySelector('#togglePassword');
+    if (toggleBtn) {
+        const passwordInput = toggleBtn.previousElementSibling;
+        toggleBtn.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    }
+</script>
+{% endblock %}

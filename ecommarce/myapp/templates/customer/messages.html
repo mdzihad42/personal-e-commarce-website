@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}My Messages - LuxShop{% endblock %}
+
+{% block content %}
+<div class="bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-6 fw-bold mb-3">My Messages</h1>
+        <p class="lead text-secondary mb-0">View your support history</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 table-hover">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 border-0 text-secondary small fw-bold text-uppercase">Subject
+                                    </th>
+                                    <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Date Sent</th>
+                                    <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Status</th>
+                                    <th class="py-3 border-0 text-secondary small fw-bold text-uppercase text-end pe-4">
+                                        Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if messages %}
+                                {% for message in messages %}
+                                <tr>
+                                    <td class="ps-4 fw-bold text-dark">{{ message.subject }}</td>
+                                    <td class="text-secondary">{{ message.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if message.is_replied %}
+                                        <span
+                                            class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Replied</span>
+                                        {% else %}
+                                        <span
+                                            class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a href="{% url 'customer_message_detail' message.id %}"
+                                            class="btn btn-primary btn-sm rounded-pill px-3">
+                                            View Thread
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5">
+                                        <i class="far fa-comments fa-3x text-light mb-3"></i>
+                                        <p class="text-secondary">You haven't sent any messages yet.</p>
+                                        <a href="{% url 'contact' %}"
+                                            class="btn btn-outline-primary rounded-pill">Contact Support</a>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

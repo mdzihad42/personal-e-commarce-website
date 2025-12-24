@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Us - LuxShop{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-3 fade-in">Get in Touch</h1>
+        <p class="lead text-secondary mb-0 fade-in" style="animation-delay: 0.1s;">
+            We'd love to hear from you. Here's how you can reach us.
+        </p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <!-- Contact Info Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4 fade-in" style="animation-delay: 0.2s;">
+            <div class="card h-100 border-0 shadow-sm hover-scale text-center py-4">
+                <div class="card-body">
+                    <div class="mb-3 text-primary">
+                        <i class="fas fa-map-marker-alt fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">Visit Us</h5>
+                    <p class="text-muted mb-0">
+                        56/A <br>Raj narayan dhar road<br>Lalbag, Dhaka-1211
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in" style="animation-delay: 0.3s;">
+            <div class="card h-100 border-0 shadow-sm hover-scale text-center py-4">
+                <div class="card-body">
+                    <div class="mb-3 text-primary">
+                        <i class="fas fa-phone-alt fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">Call Us</h5>
+                    <p class="text-muted mb-0">
+                        +8801793561142<br>
+                        Mon-Fri: 9AM - 6PM EST
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in" style="animation-delay: 0.4s;">
+            <div class="card h-100 border-0 shadow-sm hover-scale text-center py-4">
+                <div class="card-body">
+                    <div class="mb-3 text-primary">
+                        <i class="fas fa-envelope fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">Email Us</h5>
+                    <p class="text-muted mb-0">
+                        mdzihad143@gmail.com<br>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Contact Form -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-premium p-4 p-md-5">
+                <h3 class="fw-bold mb-4 font-playfair">Send us a Message</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-uppercase small fw-bold text-muted">Your Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-uppercase small fw-bold text-muted">Email Address</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-uppercase small fw-bold text-muted">Subject</label>
+                            {{ form.subject }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-uppercase small fw-bold text-muted">Message</label>
+                            {{ form.message }}
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100 py-3">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Map & FAQ -->
+        <div class="col-lg-5">
+            <!-- Map -->
+            <div class="card border-0 shadow-sm overflow-hidden mb-5 rounded-3" style="height: 300px;">
+                <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox=-74.02038574218751%2C40.69767010219662%2C-73.91601562500001%2C40.75557962453669&amp;layer=mapnik&amp;marker=40.72665042234052%2C-73.96820068359375"
+                    style="border: 0;"></iframe>
+            </div>
+
+            <!-- FAQ Accordion -->
+            <h4 class="fw-bold mb-4 font-playfair">Frequently Asked Questions</h4>
+            <div class="accordion accordion-flush" id="faqAccordion">
+                <div class="accordion-item border-0 mb-3 shadow-sm rounded-3 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-white fw-bold py-3" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#faq1">
+                            How do I track my order?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted">
+                            Once your order ships, you'll receive a tracking number via email. You can also track your
+                            order status in your account dashboard.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item border-0 mb-3 shadow-sm rounded-3 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-white fw-bold py-3" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#faq2">
+                            What is your return policy?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted">
+                            We offer a 30-day return policy on all items. Items must be in original condition with tags
+                            attached.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item border-0 mb-3 shadow-sm rounded-3 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-white fw-bold py-3" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Do you ship internationally?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted">
+                            Yes, we ship to over 50 countries worldwide. Shipping costs and times vary by location.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

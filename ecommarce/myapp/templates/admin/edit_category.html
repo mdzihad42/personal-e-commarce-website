@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Category - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Edit Category</h2>
+        <a href="{% url 'admin_categories' %}" class="btn btn-secondary">Back to Categories</a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Edit Category Details</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="text-danger">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="text-danger">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">Category Image</label>
+                            {% if category.image %}
+                            <div class="mb-2">
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="img-thumbnail"
+                                    style="max-height: 100px;">
+                            </div>
+                            {% endif %}
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                            <div class="text-danger">{{ form.image.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Category</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

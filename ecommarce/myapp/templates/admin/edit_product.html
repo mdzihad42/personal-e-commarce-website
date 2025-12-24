@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Product - LuxShop Admin{% endblock %}
+
+{% block content %}
+<div class="bg-light pb-5">
+    <!-- Header -->
+    <div class="bg-white border-bottom py-4 mb-4 shadow-sm">
+        <div class="container-fluid px-lg-5">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 fw-bold font-playfair mb-1">Edit Product</h1>
+                    <p class="text-secondary mb-0">Update product details</p>
+                </div>
+                <a href="{% url 'admin_products' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Products
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-lg-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-4 p-md-5">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <div class="row g-3">
+                                <!-- Name -->
+                                <div class="col-12">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Product
+                                        Name</label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Category & Price -->
+                                <div class="col-md-6">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Category</label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                    <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Price (৳)</label>
+                                    {{ form.price }}
+                                    {% if form.price.errors %}
+                                    <div class="text-danger small mt-1">{{ form.price.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Stock -->
+                                <div class="col-md-6">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Stock
+                                        Quantity</label>
+                                    {{ form.stock }}
+                                    {% if form.stock.errors %}
+                                    <div class="text-danger small mt-1">{{ form.stock.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Description -->
+                                <div class="col-12">
+                                    <label
+                                        class="form-label text-uppercase small fw-bold text-muted">Description</label>
+                                    {{ form.description }}
+                                    {% if form.description.errors %}
+                                    <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Image -->
+                                <div class="col-12">
+                                    <label class="form-label text-uppercase small fw-bold text-muted">Product
+                                        Image</label>
+                                    {% if product.image %}
+                                    <div class="mb-3">
+                                        <img src="{{ product.image.url }}" alt="Current Image"
+                                            class="img-thumbnail rounded-3" style="max-height: 150px;">
+                                        <div class="form-text">Current image</div>
+                                    </div>
+                                    {% endif %}
+                                    {{ form.image }}
+                                    {% if form.image.errors %}
+                                    <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <button type="submit"
+                                        class="btn btn-primary btn-lg rounded-pill w-100 py-3 shadow-sm hover-scale">
+                                        <i class="fas fa-save me-2"></i>Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Form styling matching premium theme */
+    .form-control,
+    .form-select {
+        background-color: #f8fafc;
+        border: 1px solid transparent;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background-color: #ffffff;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+    }
+</style>
+{% endblock %}

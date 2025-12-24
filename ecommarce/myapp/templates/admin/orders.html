@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Orders - LuxShop Admin{% endblock %}
+
+{% block content %}
+<div class="bg-light pb-5">
+
+    <!-- Header -->
+    <div class="bg-white border-bottom py-4 mb-4 shadow-sm">
+        <div class="container-fluid px-lg-5">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">Orders</h1>
+                    <p class="text-secondary mb-0">Track and manage customer orders</p>
+                </div>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i>Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-lg-5">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Order ID</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for order in page_obj %}
+                            <tr class="hover-bg-light border-bottom border-light">
+
+                                <td class="ps-4 fw-bold">
+                                    #{{ order.order_number|default:order.id }}
+                                </td>
+
+                                <!-- CUSTOMER -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+
+                                        <!-- Avatar -->
+                                        <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle
+                                            d-flex align-items-center justify-content-center me-2"
+                                            style="width:32px;height:32px;">
+
+                                            {% if order.user %}
+                                                {% firstof order.user.first_name order.user.username|first %}
+                                            {% else %}
+                                                G
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Name & Email -->
+                                        <div>
+                                            <div class="fw-bold text-dark">
+                                                {% if order.user %}
+                                                    {% firstof order.user.first_name order.user.username %}
+                                                {% else %}
+                                                    Guest
+                                                {% endif %}
+                                            </div>
+
+                                            <small class="text-muted">
+                                                {% if order.user %}
+                                                    {{ order.user.email }}
+                                                {% else %}
+                                                    Guest Checkout
+                                                {% endif %}
+                                            </small>
+                                        </div>
+
+                                    </div>
+                                </td>
+
+                                <!-- ITEMS -->
+                                <td>
+                                    <span class="badge bg-light text-dark border rounded-pill">
+                                        {{ order.orderitem_set.count }} items
+                                    </span>
+                                </td>
+
+                                <!-- DATE -->
+                                <td class="text-muted small">
+                                    {{ order.created_at|date:"M d, Y" }}<br>
+                                    {{ order.created_at|date:"h:i A" }}
+                                </td>
+
+                                <!-- STATUS -->
+                                <td>
+                                    <form action="{% url 'update_order_status' order.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <select name="status"
+                                            class="form-select form-select-sm border-0 bg-transparent fw-bold
+                                            {% if order.status == 'delivered' %}text-success
+                                            {% elif order.status == 'pending' %}text-warning
+                                            {% elif order.status == 'cancelled' %}text-danger
+                                            {% else %}text-primary{% endif %}"
+                                            onchange="this.form.submit()">
+
+                                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                                            <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                            <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                            <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                        </select>
+                                    </form>
+                                </td>
+
+                                <!-- TOTAL -->
+                                <td class="fw-bold">
+                                    ৳{{ order.total_amount|default:0 }}
+                                </td>
+
+                                <!-- ACTION -->
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'order_detail' order.id %}"
+                                       class="btn btn-sm btn-light border text-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="fas fa-clipboard-list fa-3x mb-3 opacity-25"></i>
+                                    <h5>No orders found</h5>
+                                    <p class="small">Orders will appear once customers start purchasing.</p>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="card-footer bg-white border-0 py-3">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link rounded-circle" href="?page={{ page_obj.previous_page_number }}">‹</a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link rounded-circle bg-primary">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link rounded-circle" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link rounded-circle" href="?page={{ page_obj.next_page_number }}">›</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-bg-light:hover {
+    background-color: #f8fafc;
+}
+select.form-select:focus {
+    box-shadow: none;
+}
+</style>
+{% endblock %}

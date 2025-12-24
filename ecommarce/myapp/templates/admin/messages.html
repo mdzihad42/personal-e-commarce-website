@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Messages - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="bg-light py-4 mb-5">
+    <div class="container">
+        <h1 class="display-6 fw-bold mb-0">Customer Messages</h1>
+        <p class="text-secondary mb-0">View and reply to inquiries from the contact form</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 border-0 text-secondary small fw-bold text-uppercase">Sender</th>
+                            <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Subject</th>
+                            <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Date</th>
+                            <th class="py-3 border-0 text-secondary small fw-bold text-uppercase">Status</th>
+                            <th class="py-3 border-0 text-secondary small fw-bold text-uppercase text-end pe-4">Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in page_obj %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold">{{ message.name }}</div>
+                                <div class="small text-muted">{{ message.email }}</div>
+                            </td>
+                            <td>{{ message.subject|truncatechars:30 }}</td>
+                            <td class="text-secondary">{{ message.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if message.is_replied %}
+                                <span
+                                    class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10 rounded-pill px-3">Replied</span>
+                                {% else %}
+                                <span
+                                    class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-10 rounded-pill px-3">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{% url 'reply_message' message.id %}"
+                                    class="btn btn-outline-primary btn-sm rounded-pill px-3" title="View & Reply">
+                                    <i class="fas fa-reply me-1"></i> View & Reply
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="card-footer bg-white border-0 py-4">
+                <nav>
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link rounded-circle border-0 bg-light text-dark mx-1"
+                                href="?page={{ page_obj.previous_page_number }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link rounded-circle border-0 bg-primary mx-1">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li
+                            class="page-item">
+                            <a class="page-link rounded-circle border-0 bg-light text-dark mx-1"
+                                href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link rounded-circle border-0 bg-light text-dark mx-1"
+                                    href="?page={{ page_obj.next_page_number }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
