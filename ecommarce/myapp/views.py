@@ -164,7 +164,9 @@ def register_view(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            UserProfile.objects.create(user=user, role='customer')
+            # UserProfile is created automatically via signal, ensure role is set
+            user.userprofile.role = 'customer'
+            user.userprofile.save()
             login(request, user)
             messages.success(request, f'Welcome to E-Shop, {user.first_name or user.username}!')
             return redirect('home')

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, Category, Product, Cart, CartItem, Order, OrderItem, Coupon
+from .models import UserProfile, Category, Product, Cart, CartItem, Order, OrderItem, Coupon,ContactMessage, MessageReply
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -37,6 +37,26 @@ class CouponAdmin(admin.ModelAdmin):
     list_filter = ('active', 'valid_from', 'valid_to')
     search_fields = ('code',)
 
-# Register other models without custom admin
-admin.site.register(Cart)
-admin.site.register(CartItem)
+@admin.register(Cart)
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at')
+    search_fields = ('user__username',)
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('cart', 'product', 'quantity')
+    search_fields = ('cart__user__username', 'product__name')
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'is_replied', 'created_at')
+    list_filter = ('is_replied', 'created_at')
+    search_fields = ('name', 'email', 'subject')
+    readonly_fields = ('created_at',)
+
+@admin.register(MessageReply)
+class MessageReplyAdmin(admin.ModelAdmin):
+    list_display = ('message', 'user', 'is_admin', 'created_at')
+    list_filter = ('is_admin', 'created_at')
+    search_fields = ('message__subject', 'user__username', 'content')
+    readonly_fields = ('created_at',)
