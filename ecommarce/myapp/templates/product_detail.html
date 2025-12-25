@@ -40,7 +40,7 @@
                                 {% else %}
                                     <span class="badge bg-success px-3 py-2 rounded-pill shadow-sm">In Stock</span>
                                 {% endif %}
-                                {% if product.created_at|date:"Y-m-d" > "now"|date:"Y-m-d" %}
+                                {% if is_new %}
                                     <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">New Arrival</span>
                                 {% endif %}
                             </div>

@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Count
 from django.core.paginator import Paginator
 from django.utils import timezone
+import datetime
 from .models import *
 from .forms import *
 from django.contrib.auth.forms import UserCreationForm
@@ -110,11 +111,20 @@ def product_detail(request, product_id):
             in_wishlist = True
             wishlist_item_id = wishlist_item.id
 
+    # Determine if product is a "new arrival" (within the last 7 days)
+    is_new = False
+    try:
+        if getattr(product, 'created_at', None):
+            is_new = product.created_at >= (timezone.now() - datetime.timedelta(days=7))
+    except Exception:
+        is_new = False
+
     context = {
         'product': product,
         'related_products': related_products,
         'in_wishlist': in_wishlist,
         'wishlist_item_id': wishlist_item_id,
+        'is_new': is_new,
     }
     return render(request, 'product_detail.html', context)
 
