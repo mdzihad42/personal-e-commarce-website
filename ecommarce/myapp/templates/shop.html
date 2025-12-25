@@ -6,7 +6,7 @@
 {% block content %}
 
 <!-- Page Header -->
-<div class="bg-light py-5 mb-5">
+<div class="bg-light py-4 py-lg-5 mb-4 mb-lg-5">
     <div class="container text-center">
         <h1 class="display-5 fw-bold mb-3 fade-in">Our Collection</h1>
         <p class="lead text-secondary mb-0 fade-in" style="animation-delay: 0.1s;">
@@ -20,9 +20,25 @@
 
         <!-- Sidebar -->
         <div class="col-lg-3 mb-5">
-            <div class="sidebar-card sticky-top" style="top:100px;">
-                <div class="sidebar-header">Filter Products</div>
-                <div class="sidebar-body">
+            <!-- Mobile Filter Toggle -->
+            <button class="btn btn-primary w-100 mb-4 d-lg-none shadow-sm" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#filterSidebar">
+                <i class="fas fa-filter me-2"></i> Filter Products
+            </button>
+
+            <!-- Sidebar (Offcanvas on mobile, Sticky on Desktop) -->
+            <div class="sidebar-card offcanvas-lg offcanvas-start sticky-lg-top" tabindex="-1" id="filterSidebar"
+                aria-labelledby="filterSidebarLabel">
+                <div class="offcanvas-header border-bottom bg-light">
+                    <h5 class="offcanvas-title fw-bold" id="filterSidebarLabel">Filter Products</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                        data-bs-target="#filterSidebar"></button>
+                </div>
+
+                <!-- Desktop Header -->
+                <div class="sidebar-header d-none d-lg-block">Filter Products</div>
+
+                <div class="sidebar-body offcanvas-body d-block">
                     <form method="get" action="{% url 'shop' %}">
 
                         <!-- Search -->
@@ -97,7 +113,7 @@
                     <input type="hidden" name="max_price" value="{{ max_price }}">
 
                     <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="name" {% if sort_by  == 'name' %}selected{% endif %}>Default</option>
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Default</option>
                         <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>
                             Price: Low to High
                         </option>
@@ -112,9 +128,9 @@
             </div>
 
             {% if page_obj.paginator.count > 0 %}
-            <div class="row g-4">
+            <div class="row g-3 g-lg-4">
                 {% for product in page_obj %}
-                <div class="col-md-6 col-lg-4">
+                <div class="col-6 col-md-4 col-lg-4">
                     <div class="product-card h-100">
                         <div class="product-image">
                             <a href="{% url 'product_detail' product.id %}">

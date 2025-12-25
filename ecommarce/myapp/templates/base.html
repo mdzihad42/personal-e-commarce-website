@@ -18,7 +18,7 @@
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg fixed-top">
-        <div class="container">
+        <div class="container-fluid px-4 px-lg-5">
             <a class="navbar-brand" href="{% url 'home' %}">
                 <i class="fas fa-gem me-2"></i>LuxShop
             </a>
@@ -100,7 +100,7 @@
     </nav>
 
     <!-- Spacer for fixed navbar -->
-    <div style="height: 80px;"></div>
+    <div class="navbar-spacer"></div>
 
     <!-- Messages -->
     {% if messages %}
