@@ -4,6 +4,8 @@
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<button type="submit"> <a href="https://luxshop.crsyndicate.info/"> Luxshop</a></button>
+
 A full-featured e-commerce platform built with Django, featuring user authentication, product management, shopping cart, order processing, and an admin dashboard.
 
 ## ✨ Features
